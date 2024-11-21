@@ -15,3 +15,5 @@ router.post("/create", upload("groupDp"), async(req, res) => {
        res.status(500).json({message: "Something went wrong"})
    }
 })
+
+export default router;

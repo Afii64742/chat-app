@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 import User from "../models/user.js"
 import upload from "../utils/fileUploader.js";
 const router = express.Router();
@@ -36,7 +37,8 @@ router.post("/login", async(req, res) => {
         if(!passwordMatch){
             return res.status(401).json({message: "Invalid credentials"})
         }
-        res.status(200).json({message: "Login successful"})
+        const token = await jwt.sign({userId:user._id}, process.env.JWT_SECRET, {expiresIn:"1d"});
+        res.status(200).json({token})
     }catch(err){
         console.log(err)
         res.status(500).json({message: "Something went wrong"})
