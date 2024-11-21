@@ -1,12 +1,21 @@
 import express from "express";
 import bcrypt from "bcrypt"
 import User from "../models/user.js"
+import upload from "../utils/fileUploader.js";
 const router = express.Router();
 
-router.post("/", async(req, res) => {
+router.post("/", upload.single("profilePicture"), async(req, res) => {
     try{
         const {firstName, lastName, username, email, password} = req.body;
-    const newUser = new User({firstName, lastName, username, email, password})
+        // extracting path from the file object
+        const profilePicture = req.file ? req.file.path:null;
+        const newUser = new User({
+        firstName,
+        lastName,
+        username,
+        email, password, 
+        profilePicture
+    })
     await newUser.save();
     res.status(201).json({message: "User created successfully"})
     }catch(err){
