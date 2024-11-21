@@ -16,6 +16,12 @@ const messageSchema =new mongoose.Schema({
         type:String,
         required:true
     },
+    group:{
+      type:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Group",
+      }
+    },
     file:{
         type:String
     }
