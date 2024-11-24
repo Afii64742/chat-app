@@ -1,22 +1,46 @@
 import express from "express";
 import User from "../models/user.js"
+import Message from "../models/message.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 router.get("/", authMiddleware, async (req, res) => {
     try {
-        // Assuming req.user contains the logged-in user's id
-        const loggedInUserId = req.user._id; // Replace `id` with the correct property
+        // Get all users excluding the current user
+        const users = await User.find({ _id: { $ne: req.user._id } });
 
-        // Exclude the logged-in user from the results
-        const users = await User.find({ _id: { $ne: loggedInUserId } });
+        // Fetch the last message for each user
+        const usersWithLastMessages = await Promise.all(
+            users.map(async (user) => {
+                const lastMessage = await Message.findOne({
+                    $or: [
+                        { sender: req.user._id, receiver: user._id },
+                        { sender: user._id, receiver: req.user._id }
+                    ]
+                })
+                .sort({ createdAt: -1 }) // Sort by most recent
+                .exec();
 
-        res.status(200).json(users);
+                return {
+                    ...user.toObject(),
+                    lastMessage: lastMessage
+                        ? {
+                            content: lastMessage.message,
+                            sender: lastMessage.sender,
+                            createdAt: lastMessage.createdAt,
+                        }
+                        : null, // No messages yet
+                };
+            })
+        );
+
+        res.status(200).json(usersWithLastMessages);
     } catch (err) {
-        console.error(err);
+        console.log(err);
         res.status(500).json({ message: "Something went wrong" });
     }
 });
+
 
 //me
 

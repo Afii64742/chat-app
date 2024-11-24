@@ -20,7 +20,7 @@ router.post("/message", authMiddleware, upload.single('file'), async(req, res) =
 })
 
 // get chat history bw two users
-router.get("/history/:receiverId", authMiddleware, async(req, res) => {
+   router.get("/history/:receiverId", authMiddleware, async(req, res) => {
    try{
     const {receiverId} = req.params;
     const messages = await Message.find({$or:[{sender: req.user._id, receiver: receiverId}, {sender: receiverId, receiver: req.user._id}]});

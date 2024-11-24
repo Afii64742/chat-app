@@ -15,17 +15,17 @@ const initChatSocket = (server) => {
             io.emit("onlineUsers", Array.from(onlineUsers.keys()));
         });
 
-        // Handle user disconnect
-        socket.on("disconnect", async () => {
-            const userId = [...onlineUsers.entries()].find(
-                ([id]) => id === socket.id
-            )?.[0];
-            if (userId) {
-                onlineUsers.delete(userId);
-                await User.findByIdAndUpdate(userId, { isOnline: false });
-                io.emit("onlineUsers", Array.from(onlineUsers.keys()));
-            }
-        });
+    // Handle user disconnect
+    socket.on("disconnect", async () => {
+        console.log("user disconnected", socket.id);
+        const userId = onlineUsers.get(socket.id); 
+        if (userId) {
+            onlineUsers.delete(socket.id); 
+            await User.findByIdAndUpdate(userId, { isOnline: false }); 
+            console.log(`User ${userId} is now offline`);
+            io.emit("onlineUsers", Array.from(onlineUsers.values())); 
+        }
+    });
 
         // Handle private messaging
         socket.on("sendMessage", (data) => {
