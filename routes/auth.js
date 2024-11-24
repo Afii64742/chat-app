@@ -5,11 +5,15 @@ import User from "../models/user.js"
 import upload from "../utils/fileUploader.js";
 const router = express.Router();
 
-router.post("/", upload.single("profilePicture"), async(req, res) => {
+router.post("/register", upload.single("profilePicture"), async(req, res) => {
     try{
         const {firstName, lastName, username, email, password} = req.body;
-        // extracting path from the file object
-        const profilePicture = req.file ? req.file.path:null;
+        const checkUser = await User.findOne({email});
+        if(checkUser){
+            return res.status(400).json({message: "User already exists"})
+        }
+        // extracting the relative path for the file
+        const profilePicture = req.file ? `/uploads/${req.file.filename}` : null;
         const newUser = new User({
         firstName,
         lastName,

@@ -1,10 +1,11 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import upload from "../utils/fileUploader.js";
+import Message from "../models/message.js";
 const router = express.Router();
 
 // send private message 
-router.post("/message", authMiddleware, upload('file'), async(req, res) => {
+router.post("/message", authMiddleware, upload.single('file'), async(req, res) => {
     try{
         const {receiverId, message} = req.body;
         const file = req.file ? req.file.path : null;
@@ -33,7 +34,7 @@ router.get("/history/:receiverId", authMiddleware, async(req, res) => {
 
 // send message in group 
 
-router.post("/group/message", authMiddleware, upload('file'), async(req, res) => {
+router.post("/group/message", authMiddleware, upload.single('file'), async(req, res) => {
     try{
         const {groupId, message} = req.body;
         const file = req.file ? req.file.path : null;
@@ -45,3 +46,5 @@ router.post("/group/message", authMiddleware, upload('file'), async(req, res) =>
     res.status(500).json({message: "Something went wrong"})
     }
 })
+
+export default router
